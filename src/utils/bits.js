@@ -20,49 +20,49 @@ function padLeft(string, padding) {
   return repeat(Math.max(0, padding)) + string;
 }
 
-function padRight(string, padding) {
-  return string + repeat(Math.max(0, padding));
-}
+// function padRight(string, padding) {
+//   return string + repeat(Math.max(0, padding));
+// }
 
-function encodeIntToBits(number, numBits) {
-  let bitString = '';
+// function encodeIntToBits(number, numBits) {
+//   let bitString = '';
 
-  if (typeof number === 'number' && !isNaN(number)) {
-    bitString = parseInt(number, 10).toString(2);
-  }
+//   if (typeof number === 'number' && !isNaN(number)) {
+//     bitString = parseInt(number, 10).toString(2);
+//   }
 
-  // Pad the string if not filling all bits
-  if (numBits >= bitString.length) {
-    bitString = padLeft(bitString, numBits - bitString.length);
-  }
+//   // Pad the string if not filling all bits
+//   if (numBits >= bitString.length) {
+//     bitString = padLeft(bitString, numBits - bitString.length);
+//   }
 
-  // Truncate the string if longer than the number of bits
-  if (bitString.length > numBits) {
-    bitString = bitString.substring(0, numBits);
-  }
+//   // Truncate the string if longer than the number of bits
+//   if (bitString.length > numBits) {
+//     bitString = bitString.substring(0, numBits);
+//   }
 
-  return bitString;
-}
+//   return bitString;
+// }
 
-function encodeBoolToBits(value) {
-  return encodeIntToBits(value === true ? 1 : 0, 1);
-}
+// function encodeBoolToBits(value) {
+//   return encodeIntToBits(value === true ? 1 : 0, 1);
+// }
 
-function encodeDateToBits(date, numBits) {
-  if (date instanceof Date) {
-    return encodeIntToBits(date.getTime() / 100, numBits);
-  }
-  return encodeIntToBits(date, numBits);
-}
+// function encodeDateToBits(date, numBits) {
+//   if (date instanceof Date) {
+//     return encodeIntToBits(date.getTime() / 100, numBits);
+//   }
+//   return encodeIntToBits(date, numBits);
+// }
 
-function encodeLetterToBits(letter, numBits) {
-  return encodeIntToBits(letter.toUpperCase().charCodeAt(0) - 65, numBits);
-}
+// function encodeLetterToBits(letter, numBits) {
+//   return encodeIntToBits(letter.toUpperCase().charCodeAt(0) - 65, numBits);
+// }
 
-function encodeLanguageToBits(language, numBits = 12) {
-  return encodeLetterToBits(language.slice(0, 1), numBits / 2)
-    + encodeLetterToBits(language.slice(1), numBits / 2);
-}
+// function encodeLanguageToBits(language, numBits = 12) {
+//   return encodeLetterToBits(language.slice(0, 1), numBits / 2)
+//     + encodeLetterToBits(language.slice(1), numBits / 2);
+// }
 
 function decodeBitsToInt(bitString, start, length) {
   return parseInt(bitString.substr(start, length), 2);
@@ -88,51 +88,51 @@ function decodeBitsToLanguage(bitString, start, length) {
     + decodeBitsToLetter(languageBitString.slice(length / 2));
 }
 
-function encodeField({ input, field }) {
-  const { name, type, numBits, encoder, validator } = field;
+// function encodeField({ input, field }) {
+//   const { name, type, numBits, encoder, validator } = field;
 
-  if (typeof validator === 'function') {
-    if (!validator(input)) {
-      return '';
-    }
-  }
-  if (typeof encoder === 'function') {
-    return encoder(input);
-  }
+//   if (typeof validator === 'function') {
+//     if (!validator(input)) {
+//       return '';
+//     }
+//   }
+//   if (typeof encoder === 'function') {
+//     return encoder(input);
+//   }
 
-  const bitCount = typeof numBits === 'function' ? numBits(input) : numBits;
+//   const bitCount = typeof numBits === 'function' ? numBits(input) : numBits;
 
-  const inputValue = input[name];
-  const fieldValue = inputValue === null || inputValue === undefined ? '' : inputValue;
+//   const inputValue = input[name];
+//   const fieldValue = inputValue === null || inputValue === undefined ? '' : inputValue;
 
-  switch (type) {
-    case 'int':
-      return encodeIntToBits(fieldValue, bitCount);
-    case 'bool':
-      return encodeBoolToBits(fieldValue);
-    case 'date':
-      return encodeDateToBits(fieldValue, bitCount);
-    case 'bits':
-      return padRight(fieldValue, bitCount - fieldValue.length).substring(0, bitCount);
-    case 'list':
-      return fieldValue.reduce((acc, listValue) => acc + encodeFields({
-        input: listValue,
-        fields: field.fields,
-      }), '');
-    case 'language':
-      return encodeLanguageToBits(fieldValue, bitCount);
-    default:
-      throw new Error(`ConsentString - Unknown field type ${type} for encoding`);
-  }
-}
+//   switch (type) {
+//     case 'int':
+//       return encodeIntToBits(fieldValue, bitCount);
+//     case 'bool':
+//       return encodeBoolToBits(fieldValue);
+//     case 'date':
+//       return encodeDateToBits(fieldValue, bitCount);
+//     case 'bits':
+//       return padRight(fieldValue, bitCount - fieldValue.length).substring(0, bitCount);
+//     case 'list':
+//       return fieldValue.reduce((acc, listValue) => acc + encodeFields({
+//         input: listValue,
+//         fields: field.fields,
+//       }), '');
+//     case 'language':
+//       return encodeLanguageToBits(fieldValue, bitCount);
+//     default:
+//       throw new Error(`ConsentString - Unknown field type ${type} for encoding`);
+//   }
+// }
 
-function encodeFields({ input, fields }) {
-  return fields.reduce((acc, field) => {
-    acc += encodeField({ input, field });
+// function encodeFields({ input, fields }) {
+//   return fields.reduce((acc, field) => {
+//     acc += encodeField({ input, field });
 
-    return acc;
-  }, '');
-}
+//     return acc;
+//   }, '');
+// }
 
 function decodeField({ input, output, startPosition, field }) {
   const { type, numBits, decoder, validator, listCount } = field;
@@ -226,49 +226,49 @@ function decodeFields({ input, fields, startPosition = 0 }) {
   };
 }
 
-/**
- * Encode the data properties to a bit string. Encoding will encode
- * either `selectedVendorIds` or the `vendorRangeList` depending on
- * the value of the `isRange` flag.
- */
-function encodeDataToBits(data, definitionMap) {
-  const { version } = data;
+// /**
+//  * Encode the data properties to a bit string. Encoding will encode
+//  * either `selectedVendorIds` or the `vendorRangeList` depending on
+//  * the value of the `isRange` flag.
+//  */
+// function encodeDataToBits(data, definitionMap) {
+//   const { version } = data;
 
-  if (typeof version !== 'number') {
-    throw new Error('ConsentString - No version field to encode');
-  } else if (!definitionMap[version]) {
-    throw new Error(`ConsentString - No definition for version ${version}`);
-  } else {
-    const fields = definitionMap[version].fields;
-    return encodeFields({ input: data, fields });
-  }
-}
+//   if (typeof version !== 'number') {
+//     throw new Error('ConsentString - No version field to encode');
+//   } else if (!definitionMap[version]) {
+//     throw new Error(`ConsentString - No definition for version ${version}`);
+//   } else {
+//     const fields = definitionMap[version].fields;
+//     return encodeFields({ input: data, fields });
+//   }
+// }
 
-/**
- * Take all fields required to encode the consent string and produce the URL safe Base64 encoded value
- */
-function encodeToBase64(data, definitionMap = vendorVersionMap) {
-  const binaryValue = encodeDataToBits(data, definitionMap);
+// /**
+//  * Take all fields required to encode the consent string and produce the URL safe Base64 encoded value
+//  */
+// function encodeToBase64(data, definitionMap = vendorVersionMap) {
+//   const binaryValue = encodeDataToBits(data, definitionMap);
 
-  if (binaryValue) {
-    // Pad length to multiple of 8
-    const paddedBinaryValue = padRight(binaryValue, 7 - ((binaryValue.length + 7) % 8));
+//   if (binaryValue) {
+//     // Pad length to multiple of 8
+//     const paddedBinaryValue = padRight(binaryValue, 7 - ((binaryValue.length + 7) % 8));
 
-    // Encode to bytes
-    let bytes = '';
-    for (let i = 0; i < paddedBinaryValue.length; i += 8) {
-      bytes += String.fromCharCode(parseInt(paddedBinaryValue.substr(i, 8), 2));
-    }
+//     // Encode to bytes
+//     let bytes = '';
+//     for (let i = 0; i < paddedBinaryValue.length; i += 8) {
+//       bytes += String.fromCharCode(parseInt(paddedBinaryValue.substr(i, 8), 2));
+//     }
 
-    // Make base64 string URL friendly
-    return base64.encode(bytes)
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=+$/, '');
-  }
+//     // Make base64 string URL friendly
+//     return base64.encode(bytes)
+//       .replace(/\+/g, '-')
+//       .replace(/\//g, '_')
+//       .replace(/=+$/, '');
+//   }
 
-  return null;
-}
+//   return null;
+// }
 
 function decodeConsentStringBitValue(bitString, definitionMap = vendorVersionMap) {
   const version = decodeBitsToInt(bitString, 0, versionNumBits);
@@ -323,21 +323,21 @@ function decodeBitsToIds(bitString) {
 }
 
 module.exports = {
-  padRight,
-  padLeft,
-  encodeField,
-  encodeDataToBits,
-  encodeIntToBits,
-  encodeBoolToBits,
-  encodeDateToBits,
-  encodeLanguageToBits,
-  encodeLetterToBits,
-  encodeToBase64,
+  // padRight,
+  // padLeft,
+  // encodeField,
+  // encodeDataToBits,
+  // encodeIntToBits,
+  // encodeBoolToBits,
+  // encodeDateToBits,
+  // encodeLanguageToBits,
+  // encodeLetterToBits,
+  // encodeToBase64,
   decodeBitsToIds,
-  decodeBitsToInt,
-  decodeBitsToDate,
-  decodeBitsToBool,
-  decodeBitsToLanguage,
-  decodeBitsToLetter,
+  // decodeBitsToInt,
+  // decodeBitsToDate,
+  // decodeBitsToBool,
+  // decodeBitsToLanguage,
+  // decodeBitsToLetter,
   decodeFromBase64,
 };
